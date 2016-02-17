@@ -1,0 +1,8 @@
+{
+    "name": "SURFnet/simplesamlphp-module-idin",
+    "description": "SimpleSAMLphp module for iDIN authentication",
+    "type": "simplesamlphp-module",
+    "require": {
+        "simplesamlphp/composer-module-installer": "~1.0"
+    }
+}
