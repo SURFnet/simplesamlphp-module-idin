@@ -3,10 +3,10 @@
     "description": "SimpleSAMLphp module for iDIN authentication",
     "type": "simplesamlphp-module",
     "repositories": [
-      {
-        "url": "https://github.com/SURFnet/idin-libphp.git",
-        "type": "git"
-      }
+        {
+            "type": "path",
+            "url": "/cygdrive/d/SURFnet/devel/idin-libphp"
+        }
     ],
     "require": {
         "simplesamlphp/composer-module-installer": "~1.0",
