@@ -4,12 +4,12 @@
     "type": "simplesamlphp-module",
     "repositories": [
         {
-            "type": "path",
-            "url": "/cygdrive/d/SURFnet/devel/idin-libphp"
+            "url": "https://github.com/SURFnet/idin-libphp.git",
+            "type": "git"
         }
     ],
     "require": {
         "simplesamlphp/composer-module-installer": "~1.0",
-        "SURFnet/idin-libphp": "dev-master"
+        "SURFnet/idin-libphp": "dev-develop"
     }
 }
