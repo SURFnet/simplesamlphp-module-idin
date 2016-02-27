@@ -1,11 +1,20 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+if (!array_key_exists('stateID', $_REQUEST)) {
+    throw new Exception('Lost OAuth Client State');
+}
+$state = SimpleSAML_Auth_State::loadState($_REQUEST['stateID'], sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
 
-sspmod_idin_Interface::initialize();
+assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)');
+if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)) {
+    throw new Exception('State information has AuthId mismatch');
+}
+assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE, $state)');
+if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE, $state)) {
+    throw new Exception('State information has Directory missing');
+}
 
-$response = sspmod_idin_Interface::sendDirectoryRequest();
-//var_dump($Model);
+$response = $state[sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE];
 ?>
 
 <!doctype html>
@@ -44,6 +53,7 @@ $response = sspmod_idin_Interface::sendDirectoryRequest();
                         <?php } ?>
                     </select>
                 </p>
+                <input name="stateID" type="hidden" value="<?php echo $_REQUEST['stateID']; ?>" />
                 <input type="submit" value="Next" />
             </form>
         </div>

@@ -27,7 +27,7 @@ class sspmod_idin_Interface {
             self::$_bankid_config->AcquirerDirectoryUrl = $config->getValue('directoryUrl');
             self::$_bankid_config->AcquirerTransactionUrl = $config->getValue('transactionUrl');
             self::$_bankid_config->AcquirerStatusUrl = $config->getValue('statusUrl');
-            self::$_bankid_config->MerchantReturnUrl = 'http://www.example.org';
+            self::$_bankid_config->MerchantReturnUrl = $config->getValue('returnUrl');;
             
             self::$_bankid_config->MerchantCertificateFile = self::getCertificatePath($config->getValue('merchant:certificate:file'));
             self::$_bankid_config->MerchantCertificatePassword = $config->getValue('merchant:certificate:password');
@@ -54,16 +54,24 @@ class sspmod_idin_Interface {
         return $dirRes;
     }
     
-    public static function sendAuthenticationRequest($issuerID) {
+    public static function sendAuthenticationRequest($params) {
         $trxReq = new \BankId\Merchant\Library\AuthenticationRequest();
-        $trxReq->setEntranceCode('test');
+        $trxReq->setEntranceCode($params['entranceCode']);
         $trxReq->setLanguage('en');
-        $trxReq->setIssuerID($issuerID);
+        $trxReq->setIssuerID($params['issuerID']);
         $trxReq->setMerchantReference(\BankId\Merchant\Library\AuthenticationRequest::generateMerchantReference());
         $trxReq->setAssuranceLevel(\BankId\Merchant\Library\AssuranceLevel::$Loa2);
         $trxReq->setRequestedServiceID(1);
         
         $trxRes = self::$_bankid_communicator->newAuthenticationRequest($trxReq);
         return $trxRes;
+    }
+    
+    public static function sendStatusRequest($params) {
+        $stsReq = new \BankId\Merchant\Library\StatusRequest();
+        $stsReq->setTransactionID($params['transactionID']);
+        
+        $stsRes = self::$_bankid_communicator->getResponse($stsReq);
+        return $stsRes;
     }
 }

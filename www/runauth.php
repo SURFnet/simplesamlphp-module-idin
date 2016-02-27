@@ -1,46 +1,26 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+if (!array_key_exists('stateID', $_REQUEST)) {
+    throw new Exception('Lost OAuth Client State');
+}
+if (!array_key_exists('issuerID', $_REQUEST)) {
+    throw new Exception('No IssuerID specified');
+}
 
-sspmod_idin_Interface::initialize();
-$response = sspmod_idin_Interface::sendAuthenticationRequest($_REQUEST['issuerID']);
+$state = SimpleSAML_Auth_State::loadState($_REQUEST['stateID'], sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
 
-//var_dump($response);
+if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)) {
+    throw new Exception('State information has AuthId mismatch');
+}
 
-?>
+$state[sspmod_idin_Auth_Source_iDIN::ISSUER_ID] = $_REQUEST['issuerID'];
 
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="HandheldFriendly" content="True">
+SimpleSAML_Auth_State::saveState($state, sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
 
-  <title>iDIN Authentication</title>
+$sourceId = $state[sspmod_idin_Auth_Source_iDIN::AUTHID];
+$source = SimpleSAML_Auth_Source::getById($sourceId);
+if ($source === NULL) {
+    throw new Exception('Could not find authentication source with id ' . $sourceId);
+}
 
-  <link rel="stylesheet" type="text/css" media="screen" href="css/concise.min.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="css/narrow.css" />
-</head>
-
-<body>
-  <div container>
-    <header row class="siteHeader">
-      <div column=4>
-        <h1 class="logo">iDIN Authentication</h1>
-      </div>
-    </header>
-    <main class="siteContent">
-      <div row>
-        You will now be redirected to your bank's website. You will need to enter your credentials and allow the authentication to take place. Once you approve this operation, you will be redirected back to this website and you will be logged in.
-      </div>
-      <div row>
-        <a href="<?php echo $response->getIssuerAuthenticationURL(); ?>"><button>Click here to continue...</button></a>
-      </div>
-    </main>
-    <footer class="siteFooter">
-      <p>Copyright &copy; 2016</p>
-    </footer>
-  </div>
-</body>
-</html>
+$source->redirectToBank($state);
