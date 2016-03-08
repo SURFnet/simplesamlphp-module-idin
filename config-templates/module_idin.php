@@ -20,6 +20,7 @@ $config = array(
     'servicelogs:location' => 'C:\MyWebshop\idin\ServiceLogs',
     'servicelogs:pattern' => '%Y-%M-%D\%h%m%s.%f-%a.xml',
     
+    /*
     'store' => array(
         'idin:Database',
         'dsn' => 'mysql:host=localhost;dbname=simplesaml',
@@ -27,15 +28,23 @@ $config = array(
         'password' => 'password',
         'table' => 'module.idin'
     ),
+    */
     
-    //'store' => array(
-    //    'idin:Memcache',
-    //    'servers' => array(
-    //        array(
-    //            'hostname' => 'localhost',
-    //            'port' => '11211'
-    //        ),
-    //    ),
-    //    'key' => 'simplesamlphp.module.idin.directory'
-    //),
+    /*
+    'store' => array(
+        'idin:Memcache',
+        'servers' => array(
+            array(
+                'hostname' => 'localhost',
+                'port' => '11211'
+            ),
+        ),
+        'key' => 'simplesamlphp.module.idin.directory'
+    ),
+    */
+    
+    'store' => array(
+        'idin:File',
+        'filename' => 'C:\MyWebshop\idin\Directory.xml'
+    )
 );
