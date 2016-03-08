@@ -5,7 +5,6 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 class sspmod_idin_Interface {
     private static $_bankid_config;
     private static $_bankid_communicator;
-    
     private static $_store;
     
     private static function getCertificatePath($name) {
