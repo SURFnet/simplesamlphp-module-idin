@@ -21,4 +21,4 @@ if ($source === NULL) {
     throw new Exception('Could not find authentication source with id ' . $sourceId);
 }
 
-$source->getStatus($state);
+$source->resume($state);

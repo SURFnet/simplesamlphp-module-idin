@@ -6,6 +6,8 @@ class sspmod_idin_Interface {
     private static $_bankid_config;
     private static $_bankid_communicator;
     
+    private static $_store;
+    
     private static function getCertificatePath($name) {
         $certificateFullPath =
             SimpleSAML_Utilities::resolvePath(
@@ -17,6 +19,10 @@ class sspmod_idin_Interface {
     
     public static function initialize() {
         $config = SimpleSAML_Configuration::getConfig('module_idin.php');
+        
+        if (self::$_store == NULL) {
+            self::$_store = sspmod_idin_Store::getFromConfig($config);
+        }
 
         if (self::$_bankid_config == NULL)
         {
@@ -50,7 +56,27 @@ class sspmod_idin_Interface {
     }
     
     public static function sendDirectoryRequest() {
-        $dirRes = self::$_bankid_communicator->getDirectory();
+        $dirRes = NULL;
+        
+        $lastTimestamp = self::$_store->getLastDirectoryTimestamp();
+        
+        if ($lastTimestamp != NULL) {
+            $then = new DateTime($lastTimestamp);
+            $now = new DateTime('now');
+            $diff = $now->diff($then);
+            if ($diff->d >= 1) {
+                $dirRes = self::$_bankid_communicator->getDirectory();
+                self::$_store->saveDirectory($dirRes);
+            }
+            else {
+                $dirRes = \BankId\Merchant\Library\DirectoryResponse::parse(self::$_store->getDirectory());
+            }
+        }
+        else {
+            $dirRes = self::$_bankid_communicator->getDirectory();
+            self::$_store->saveDirectory($dirRes);
+        }
+        
         return $dirRes;
     }
     

@@ -1,16 +1,16 @@
 <?php
 
 if (!array_key_exists('stateID', $_REQUEST)) {
-    throw new Exception('Lost OAuth Client State');
+    throw sspmod_idin_Exception::fromString('Lost OAuth Client State');
 }
 if (!array_key_exists('issuerID', $_REQUEST)) {
-    throw new Exception('No IssuerID specified');
+    throw sspmod_idin_Exception::fromString('No IssuerID specified');
 }
 
 $state = SimpleSAML_Auth_State::loadState($_REQUEST['stateID'], sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
 
 if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)) {
-    throw new Exception('State information has AuthId mismatch');
+    throw sspmod_idin_Exception::fromString('State information has AuthId mismatch');
 }
 
 $state[sspmod_idin_Auth_Source_iDIN::ISSUER_ID] = $_REQUEST['issuerID'];
@@ -20,7 +20,7 @@ SimpleSAML_Auth_State::saveState($state, sspmod_idin_Auth_Source_iDIN::STAGE_INI
 $sourceId = $state[sspmod_idin_Auth_Source_iDIN::AUTHID];
 $source = SimpleSAML_Auth_Source::getById($sourceId);
 if ($source === NULL) {
-    throw new Exception('Could not find authentication source with id ' . $sourceId);
+    throw sspmod_idin_Exception::fromString('Could not find authentication source with id ' . $sourceId);
 }
 
 $source->redirectToBank($state);

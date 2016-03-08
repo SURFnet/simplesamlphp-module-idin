@@ -16,7 +16,7 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
     const SURFCONEXT_UID = 'urn:mace:dir:attribute-def:uid';
     
     private $interface;
-    private $nameID;
+    private $attributes;
 
     private function debug($message)
     {
@@ -30,6 +30,7 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         assert('is_array($info)');
         assert('is_array($config)');
         parent::__construct($info, $config);
+        
         $this->interface = new sspmod_idin_Interface();
         $this->interface->initialize();
     }
@@ -40,15 +41,17 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
             $this->debug("starting session");
             session_start();
         }
-        if (!isset($this->nameID)) {
+        if (!isset($this->attributes)) {
             $this->debug("nameID is null");
             return NULL;
         }
-        $attributes = array(
-            self::SURFCONEXT_UID => array($this->nameID)
-        );
-        $this->debug("nameID = " . $this->nameID);
-        return $attributes;
+        
+        $processedAttributes = array();
+        foreach ($this->attributes as $key => $value) {
+            $processedAttributes[$key] = array ( $value );
+        }
+        
+        return $processedAttributes;
     }
 
     public function authenticate(&$state) {
@@ -56,9 +59,9 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
 
         assert('is_array($state)');
 
-        $attributes = $this->getUser();
-        if ($attributes !== NULL) {
-            $state['Attributes'] = $attributes;
+        $attr = $this->getUser();
+        if ($attr !== NULL) {
+            $state['Attributes'] = $attr;
             return;
         }
         
@@ -82,9 +85,9 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         assert('is_array($state)');
         assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::ISSUER_ID, $state)');
 
-        $attributes = $this->getUser();
-        if ($attributes !== NULL) {
-            $state['Attributes'] = $attributes;
+        $attr = $this->getUser();
+        if ($attr !== NULL) {
+            $state['Attributes'] = $attr;
             return;
         }
         
@@ -95,21 +98,25 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         
         $state[self::TRANSACTION_RESPONSE] = $response;
         
+        if ($response->getIsError()) {
+            throw sspmod_idin_Exception::fromErrorResponse($response->getErrorResponse());
+        }
+        
         $stateID = SimpleSAML_Auth_State::saveState($state, self::STAGE_INIT);
         \SimpleSAML\Utils\HTTP::redirectTrustedURL($response->getIssuerAuthenticationUrl(), array(
             'stateID' => $stateID
         ));
     }
     
-    public function getStatus(&$state) {
+    public function resume(&$state) {
         $this->debug(__METHOD__);
 
         assert('is_array($state)');
         assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::TRANSACTION_ID, $state)');
         
-        $attributes = $this->getUser();
-        if ($attributes !== NULL) {
-            $state['Attributes'] = $attributes;
+        $attr = $this->getUser();
+        if ($attr !== NULL) {
+            $state['Attributes'] = $attr;
             return;
         }
         
@@ -119,52 +126,26 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         
         $state[self::STATUS_RESPONSE] = $response;
         
+        if ($response->getIsError()) {
+            throw sspmod_idin_Exception::fromErrorResponse($response->getErrorResponse());
+        }
         
-        $this->nameID =
-            $response->getSamlResponse()->getAttributes()['urn:nl:bvn:bankid:1.0:consumer.bin'];
+        $this->attributes =
+            $response->getSamlResponse()->getAttributes();
         
         $state['Attributes'] = $this->getUser();
         SimpleSAML_Auth_Source::completeAuth($state);
     }
 
-    public static function resume() {
-        $attributes = $source->getUser();
-        if ($attributes === NULL) {
-            throw new SimpleSAML_Error_Exception('User not authenticated after login page.');
-        }
-
-        $state['Attributes'] = $attributes;
-        SimpleSAML_Auth_Source::completeAuth($state);
-
-        assert('FALSE');
-    }
-
-
-    /**
-     * This function is called when the user start a logout operation, for example
-     * by logging out of a SP that supports single logout.
-     *
-     * @param array &$state  The logout state array.
-     */
     public function logout(&$state) {
         $this->debug(__METHOD__);
         
         assert('is_array($state)');
 
         if (!session_id()) {
-            /* session_start not called before. Do it here. */
             session_start();
         }
 
-        /*
-         * In this example we simply remove the 'uid' from the session.
-         */
         unset($_SESSION['uid']);
-
-        /*
-         * If we need to do a redirect to a different page, we could do this
-         * here, but in this example we don't need to do this.
-         */
     }
-
 }
