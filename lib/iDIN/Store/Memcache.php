@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-
 class sspmod_idin_iDIN_Store_Memcache extends sspmod_idin_Store {
     private $mc;
 

@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
+$baseDir = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))));
+require_once($baseDir . '/lib/_autoload.php');
 
 class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
 

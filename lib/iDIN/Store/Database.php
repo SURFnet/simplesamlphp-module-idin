@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-
 class sspmod_idin_iDIN_Store_Database extends sspmod_idin_Store {
     private $dsn;
     private $username;

@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-
 class sspmod_idin_Interface {
     private static $_bankid_config;
     private static $_bankid_communicator;

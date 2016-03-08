@@ -1,7 +1,5 @@
 <?php
 
-require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/lib/_autoload.php');
-
 if (!array_key_exists('stateID', $_REQUEST)) {
     throw sspmod_idin_Exception::fromString('Lost OAuth Client State');
 }
