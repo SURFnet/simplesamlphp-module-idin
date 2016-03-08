@@ -2,6 +2,7 @@
 
 class sspmod_idin_iDIN_Store_Memcache extends sspmod_idin_Store {
     private $mc;
+    private $key;
 
     public function __construct($config) {
         parent::__construct($config);
@@ -10,10 +11,11 @@ class sspmod_idin_iDIN_Store_Memcache extends sspmod_idin_Store {
             throw sspmod_idin_Exception::fromString('Missing required option \'dsn\'.');
         }
 
-        $this->servers = $config['servers'];
         $this->mc = new Memcache();
+        $this->key = $config['key'];
         
-        foreach ($this->servers as $key => $value) {
+        $servers = $config['servers'];
+        foreach ($servers as $key => $value) {
             $port = (int) $value['port'];
             $this->mc->addServer($value['hostname'], $port, true);
         }
@@ -34,11 +36,11 @@ class sspmod_idin_iDIN_Store_Memcache extends sspmod_idin_Store {
     }
     
     public function getDirectory() {
-        $value = @$this->mc->get('idin.directory');
+        $value = @$this->mc->get($this->key);
         return $value;
     }
     
     public function saveDirectory($dirRes) {
-        $this->mc->set('idin.directory', $dirRes->getRawMessage());
+        $this->mc->set($this->key, $dirRes->getRawMessage());
     }
 }
