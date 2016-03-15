@@ -1,9 +1,9 @@
 <?php
 
-if (!array_key_exists('stateID', $_REQUEST)) {
+if (!array_key_exists('stateID', $_REQUEST) || empty($_REQUEST['stateID'])) {
     throw new Exception('Lost OAuth Client State');
 }
-if (!array_key_exists('trxid', $_REQUEST)) {
+if (!array_key_exists('trxid', $_REQUEST) || empty($_REQUEST['trxid'])) {
     throw new Exception('No trxid specified');
 }
 

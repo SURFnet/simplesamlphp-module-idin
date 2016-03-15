@@ -21,20 +21,6 @@ class sspmod_idin_iDIN_Store_Memcache extends sspmod_idin_Store {
         }
     }
     
-    public function getLastDirectoryTimestamp() {
-        try {
-            $use_errors = libxml_use_internal_errors(true);
-            $response = new SimpleXMLElement($this->getDirectory());
-            $lastTimestamp = (string)$response->createDateTimestamp;
-            libxml_clear_errors();
-            libxml_use_internal_errors($use_errors);
-            return $lastTimestamp;
-        }
-        catch (Exception $e) {
-            return NULL;
-        }
-    }
-    
     public function getDirectory() {
         $value = @$this->mc->get($this->key);
         return $value;

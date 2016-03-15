@@ -1,6 +1,6 @@
 <?php
 
-if (!array_key_exists('stateID', $_REQUEST)) {
+if (!array_key_exists('stateID', $_REQUEST) || empty($_REQUEST['stateID'])) {
     throw sspmod_idin_Exception::fromString('Lost OAuth Client State');
 }
 $state = SimpleSAML_Auth_State::loadState($_REQUEST['stateID'], sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
@@ -22,51 +22,59 @@ if ($response->getIsError()) {
 ?>
 
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="HandheldFriendly" content="True">
-
-  <title>iDIN Authentication</title>
-
-  <link rel="stylesheet" type="text/css" media="screen" href="css/concise.min.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="css/narrow.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iDin Bank</title>
+    <link rel="stylesheet" href="css/default.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,700' rel='stylesheet' type='text/css'>
 </head>
-
 <body>
-  <div container>
-    <header row class="siteHeader">
-      <div column=4>
-        <h1 class="logo">iDIN Authentication</h1>
-      </div>
-    </header>
-    <div class="feature">
-      <h1 class="feature-title">iDIN Authentication</h1>
-      <p>You can use your bank credentials to authenticate to this website. Choose your bank to continue.</p>
-    </div>
-
-    <main class="siteContent">
-      <div row>
-        <div column=8>
-          <form method="POST" action="runauth.php">
-              <p>
-                  <select name="issuerID">
-                      <?php foreach ($response->getIssuers() as $issuer) { ?>
-                          <option value="<?php echo $issuer->getID(); ?>"><?php echo $issuer->getName() . ' (' . $issuer->getCountry() . ')'; ?></option>
-                      <?php } ?>
-                  </select>
-              </p>
-              <input name="stateID" type="hidden" value="<?php echo $_REQUEST['stateID']; ?>" />
-              <input type="submit" value="Next" />
-          </form>
+    <div id="wrapper">
+        <div id="header">
+            <div id="logo-surf">
+                <a href="#">
+                    <img class="logo-surf" src="images/SURFconext.png" />
+                </a>
+            </div>
         </div>
-      </div>
-    </main>
-    <footer class="siteFooter">
-      <p>Copyright &copy; 2016</p>
-    </footer>
-  </div>
+        <div id="content">
+            <div id="logo">
+                <a href="#">
+                    <img class="logo-img" src="images/iDIN logo.png" />
+                    <span class="page-title">iDIN Authentication</span>
+                </a>
+            </div>
+            <p>You can use your bank credentials to authenticate to this website. </p>
+
+            <div id="select-area">
+                <form method="POST" action="runauth.php">
+                    <div class="select" name="issuerID">
+                        <span class="arr"></span>
+                            <select name="issuerID">
+                                <option value="">Please, select a bank</option>
+                                <?php
+                                    foreach ($response->getIssuersByCountry() as $countryName => $issuers) {
+                                        echo '<optgroup label="' . $countryName . '">';
+                                        foreach ($issuers as $issuer) {
+                                            echo '<option value="' .  $issuer->getID() . '">' . $issuer->getName() . '</option>';
+                                        }
+                                    }
+                                ?>
+                            </select>
+                    </div>
+                    <input name="stateID" type="hidden" value="<?php echo $_REQUEST['stateID']; ?>" />
+                    <input type="submit" value="NEXT" />
+                </form>
+            </div>
+        </div>
+        <footer id="footer">
+            <div>
+                <p>
+                <small>Copyright &copy; 2016 iDIN Authentication</small>
+                </p>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>

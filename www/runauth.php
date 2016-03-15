@@ -1,9 +1,9 @@
 <?php
 
-if (!array_key_exists('stateID', $_REQUEST)) {
+if (!array_key_exists('stateID', $_REQUEST) || empty($_REQUEST['stateID'])) {
     throw sspmod_idin_Exception::fromString('Lost OAuth Client State');
 }
-if (!array_key_exists('issuerID', $_REQUEST)) {
+if (!array_key_exists('issuerID', $_REQUEST) || empty($_REQUEST['issuerID'])) {
     throw sspmod_idin_Exception::fromString('No IssuerID specified');
 }
 
