@@ -17,8 +17,7 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
     const SURFCONEXT_UID = 'urn:mace:dir:attribute-def:uid';
     
     private $interface;
-    private $attributes;
-
+    
     private function debug($message)
     {
         if ($message != NULL) {
@@ -42,13 +41,13 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
             $this->debug("starting session");
             session_start();
         }
-        if (!isset($this->attributes)) {
-            $this->debug("nameID is null");
+        if (!isset($_SESSION['attributes'])) {
+            $this->debug("not logged in");
             return NULL;
         }
         
         $processedAttributes = array();
-        foreach ($this->attributes as $key => $value) {
+        foreach ($_SESSION['attributes'] as $key => $value) {
             $processedAttributes[$key] = array ( $value );
         }
         
@@ -131,7 +130,7 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
             throw sspmod_idin_Exception::fromErrorResponse($response->getErrorResponse());
         }
         
-        $this->attributes =
+        $_SESSION['attributes'] =
             $response->getSamlResponse()->getAttributes();
         
         $state['Attributes'] = $this->getUser();
@@ -147,6 +146,6 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
             session_start();
         }
 
-        unset($_SESSION['uid']);
+        unset($_SESSION['attributes']);
     }
 }
