@@ -45,14 +45,13 @@ if ($response->getIsError()) {
                     <span class="page-title">iDIN Authentication</span>
                 </a>
             </div>
-            <p>You can use your bank credentials to authenticate to this website. </p>
-
+            <p>You can use your bank credentials to authenticate to this website. Some attributes of your account will be shared with this website. Select your bank to continue the authentication process.</p>
             <div id="select-area">
                 <form method="POST" action="runauth.php">
                     <div class="select" name="issuerID">
                         <span class="arr"></span>
                             <select name="issuerID">
-                                <option value="">Please, select a bank</option>
+                                <option value="">Please, select your bank</option>
                                 <?php
                                     foreach ($response->getIssuersByCountry() as $countryName => $issuers) {
                                         echo '<optgroup label="' . $countryName . '">';
