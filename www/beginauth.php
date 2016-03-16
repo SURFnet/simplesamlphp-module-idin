@@ -1,9 +1,8 @@
 <?php
 
-if (!array_key_exists('stateID', $_REQUEST) || empty($_REQUEST['stateID'])) {
-    throw sspmod_idin_Exception::fromString('Lost OAuth Client State');
-}
-$state = SimpleSAML_Auth_State::loadState($_REQUEST['stateID'], sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
+$stateID = sspmod_idin_Auth_Source_iDIN::getSession()->getData(sspmod_idin_Auth_Source_iDIN::AUTHID, 'stateID');
+assert('!empty($stateID)');
+$state = SimpleSAML_Auth_State::loadState($stateID, sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
 
 assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)');
 if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)) {
@@ -62,7 +61,6 @@ if ($response->getIsError()) {
                                 ?>
                             </select>
                     </div>
-                    <input name="stateID" type="hidden" value="<?php echo $_REQUEST['stateID']; ?>" />
                     <input type="submit" value="NEXT" />
                 </form>
             </div>

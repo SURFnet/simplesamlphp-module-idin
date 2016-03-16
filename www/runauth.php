@@ -1,14 +1,12 @@
 <?php
 
-if (!array_key_exists('stateID', $_REQUEST) || empty($_REQUEST['stateID'])) {
-    throw sspmod_idin_Exception::fromString('Lost OAuth Client State');
-}
+$stateID = sspmod_idin_Auth_Source_iDIN::getSession()->getData(sspmod_idin_Auth_Source_iDIN::AUTHID, 'stateID');
+assert('!empty($stateID)');
+$state = SimpleSAML_Auth_State::loadState($stateID, sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
+
 if (!array_key_exists('issuerID', $_REQUEST) || empty($_REQUEST['issuerID'])) {
     throw sspmod_idin_Exception::fromString('No IssuerID specified');
 }
-
-$state = SimpleSAML_Auth_State::loadState($_REQUEST['stateID'], sspmod_idin_Auth_Source_iDIN::STAGE_INIT);
-
 if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)) {
     throw sspmod_idin_Exception::fromString('State information has AuthId mismatch');
 }
