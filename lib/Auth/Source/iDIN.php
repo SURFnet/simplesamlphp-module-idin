@@ -17,8 +17,7 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
     const SURFCONEXT_UID = 'urn:mace:dir:attribute-def:uid';
     
     private $interface;
-    private $attributes;
-
+    
     private function debug($message)
     {
         if ($message != NULL) {
@@ -35,20 +34,22 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         $this->interface = new sspmod_idin_Interface();
         $this->interface->initialize();
     }
+    
+    public static function getSession() {
+        return SimpleSAML_Session::getSessionFromRequest();
+    }
 
     private function getUser() {
         $this->debug(__METHOD__);
-        if (!session_id()) {
-            $this->debug("starting session");
-            session_start();
-        }
-        if (!isset($this->attributes)) {
-            $this->debug("nameID is null");
+        
+        $attributes = self::getSession()->getData(self::AUTHID, 'attributes');
+        if (!isset($attributes)) {
+            $this->debug("not logged in");
             return NULL;
         }
         
         $processedAttributes = array();
-        foreach ($this->attributes as $key => $value) {
+        foreach ($attributes as $key => $value) {
             $processedAttributes[$key] = array ( $value );
         }
         
@@ -72,10 +73,9 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         $state[self::DIRECTORY_RESPONSE] = $response;
 
         $stateID = SimpleSAML_Auth_State::saveState($state, self::STAGE_INIT);
-
-        \SimpleSAML\Utils\HTTP::redirectTrustedURL(SimpleSAML_Module::getModuleURL('idin/beginauth.php'), array(
-            'stateID' => $stateID
-        ));
+        self::getSession()->setData(self::AUTHID, 'stateID', $stateID);
+        
+        \SimpleSAML\Utils\HTTP::redirectTrustedURL(SimpleSAML_Module::getModuleURL('idin/beginauth.php'));
 
         assert('FALSE');
     }
@@ -104,9 +104,9 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         }
         
         $stateID = SimpleSAML_Auth_State::saveState($state, self::STAGE_INIT);
-        \SimpleSAML\Utils\HTTP::redirectTrustedURL($response->getIssuerAuthenticationUrl(), array(
-            'stateID' => $stateID
-        ));
+        self::getSession()->setData(self::AUTHID, 'stateID', $stateID);
+        
+        \SimpleSAML\Utils\HTTP::redirectTrustedURL($response->getIssuerAuthenticationUrl());
     }
     
     public function resume(&$state) {
@@ -131,10 +131,12 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
             throw sspmod_idin_Exception::fromErrorResponse($response->getErrorResponse());
         }
         
-        $this->attributes =
-            $response->getSamlResponse()->getAttributes();
+        self::getSession()->setData(self::AUTHID, 'attributes', $response->getSamlResponse()->getAttributes());
         
         $state['Attributes'] = $this->getUser();
+        $stateID = SimpleSAML_Auth_State::saveState($state, self::STAGE_INIT);
+        self::getSession()->setData(self::AUTHID, 'stateID', $stateID);
+        
         SimpleSAML_Auth_Source::completeAuth($state);
     }
 
@@ -143,10 +145,9 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         
         assert('is_array($state)');
 
-        if (!session_id()) {
-            session_start();
-        }
-
-        unset($_SESSION['uid']);
+        self::getSession()->setData(self::AUTHID, 'stateID', null);
+        self::getSession()->setData(self::AUTHID, 'attributes', null);
+        
+        SimpleSAML_Auth_State::deleteState($state);
     }
 }
