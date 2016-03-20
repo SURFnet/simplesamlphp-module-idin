@@ -18,10 +18,9 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
     
     private $interface;
     
-    private function debug($message)
-    {
+    private function debug($message) {
         if ($message != NULL) {
-            SimpleSAML_Logger::debug('idin - ' . $message);
+            SimpleSAML_Logger::info('idin - ' . $message);
         }
     }
 
@@ -67,10 +66,14 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
             return;
         }
         
-        $response = sspmod_idin_Interface::sendDirectoryRequest();
-
         $state[self::AUTHID] = $this->authId;
+        
+        $response = sspmod_idin_Interface::sendDirectoryRequest();
         $state[self::DIRECTORY_RESPONSE] = $response;
+        
+        if ($response->getIsError()) {
+            sspmod_idin_Exception::fromErrorResponse($state, $response->getErrorResponse());
+        }
 
         $stateID = SimpleSAML_Auth_State::saveState($state, self::STAGE_INIT);
         self::getSession()->setData(self::AUTHID, 'stateID', $stateID);
@@ -96,11 +99,10 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
             'entranceCode' => 'test',
             'issuerID' => $state[self::ISSUER_ID]
         ));
-        
         $state[self::TRANSACTION_RESPONSE] = $response;
         
         if ($response->getIsError()) {
-            throw sspmod_idin_Exception::fromErrorResponse($response->getErrorResponse());
+            sspmod_idin_Exception::fromErrorResponse($state, $response->getErrorResponse());
         }
         
         $stateID = SimpleSAML_Auth_State::saveState($state, self::STAGE_INIT);
@@ -128,7 +130,7 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
         $state[self::STATUS_RESPONSE] = $response;
         
         if ($response->getIsError()) {
-            throw sspmod_idin_Exception::fromErrorResponse($response->getErrorResponse());
+            sspmod_idin_Exception::fromErrorResponse($state, $response->getErrorResponse());
         }
         
         self::getSession()->setData(self::AUTHID, 'attributes', $response->getSamlResponse()->getAttributes());

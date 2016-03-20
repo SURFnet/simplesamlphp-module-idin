@@ -6,17 +6,17 @@ $state = SimpleSAML_Auth_State::loadState($stateID, sspmod_idin_Auth_Source_iDIN
 
 assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)');
 if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)) {
-    throw sspmod_idin_Exception::fromString('State information has AuthId mismatch');
+    sspmod_idin_Exception::fromString($state, 'State information has AuthId mismatch.');
 }
 assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE, $state)');
 if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE, $state)) {
-    throw sspmod_idin_Exception::fromString('State information has Directory missing');
+    sspmod_idin_Exception::fromString($state, 'State information has Directory missing.');
 }
 
 $response = $state[sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE];
 
 if ($response->getIsError()) {
-    throw sspmod_idin_Exception::fromErrorResponse($response->getErrorResponse());
+    sspmod_idin_Exception::fromErrorResponse($state, $response->getErrorResponse());
 }
 ?>
 
@@ -57,7 +57,7 @@ if ($response->getIsError()) {
             </div>
             <p>You can use your bank credentials to authenticate to this website. Some attributes of your account will be shared with this website. Select your bank to continue the authentication process.</p>
             <div id="select-area">
-                <form method="POST" action="runauth.php" onsubmit="return validate();">
+                <form method="POST" action="runauth.php">
                     <div class="select" name="issuerID">
                         <span class="arr"></span>
                             <select name="issuerID">
