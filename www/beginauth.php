@@ -27,6 +27,17 @@ if ($response->getIsError()) {
     <title>iDin Bank</title>
     <link rel="stylesheet" href="css/default.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,700' rel='stylesheet' type='text/css'>
+    <script type="text/javascript">
+        function validate() {
+            var x = document.forms[0]["issuerID"].value;
+            if (x == null || x == "") {
+                alert("Please select a bank.");
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
 </head>
 <body>
     <div id="wrapper">
@@ -46,7 +57,7 @@ if ($response->getIsError()) {
             </div>
             <p>You can use your bank credentials to authenticate to this website. Some attributes of your account will be shared with this website. Select your bank to continue the authentication process.</p>
             <div id="select-area">
-                <form method="POST" action="runauth.php">
+                <form method="POST" action="runauth.php" onsubmit="return validate();">
                     <div class="select" name="issuerID">
                         <span class="arr"></span>
                             <select name="issuerID">
