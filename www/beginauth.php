@@ -6,17 +6,17 @@ $state = SimpleSAML_Auth_State::loadState($stateID, sspmod_idin_Auth_Source_iDIN
 
 assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)');
 if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::AUTHID, $state)) {
-    throw sspmod_idin_Exception::fromString('State information has AuthId mismatch');
+    sspmod_idin_Exception::fromString($state, 'State information has AuthId mismatch.');
 }
 assert('array_key_exists(sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE, $state)');
 if (!array_key_exists(sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE, $state)) {
-    throw sspmod_idin_Exception::fromString('State information has Directory missing');
+    sspmod_idin_Exception::fromString($state, 'State information has Directory missing.');
 }
 
 $response = $state[sspmod_idin_Auth_Source_iDIN::DIRECTORY_RESPONSE];
 
 if ($response->getIsError()) {
-    throw sspmod_idin_Exception::fromErrorResponse($response->getErrorResponse());
+    sspmod_idin_Exception::fromErrorResponse($state, $response->getErrorResponse());
 }
 ?>
 
@@ -27,6 +27,17 @@ if ($response->getIsError()) {
     <title>iDin Bank</title>
     <link rel="stylesheet" href="css/default.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,700' rel='stylesheet' type='text/css'>
+    <script type="text/javascript">
+        function validate() {
+            var x = document.forms[0]["issuerID"].value;
+            if (x == null || x == "") {
+                alert("Please select a bank.");
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
 </head>
 <body>
     <div id="wrapper">
