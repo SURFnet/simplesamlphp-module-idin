@@ -133,7 +133,12 @@ class sspmod_idin_Auth_Source_iDIN extends SimpleSAML_Auth_Source {
             sspmod_idin_Exception::fromErrorResponse($state, $response->getErrorResponse());
         }
         
-        self::getSession()->setData(self::AUTHID, 'attributes', $response->getSamlResponse()->getAttributes());
+        if ($response->getSamlResponse() != NULL) {
+            self::getSession()->setData(self::AUTHID, 'attributes', $response->getSamlResponse()->getAttributes());
+        }
+        else {
+            sspmod_idin_Exception::fromString($state, 'Didn\'t receive a valid SAML response.');
+        }
         
         $state['Attributes'] = $this->getUser();
         $stateID = SimpleSAML_Auth_State::saveState($state, self::STAGE_INIT);
