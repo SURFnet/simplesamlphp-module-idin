@@ -83,7 +83,7 @@ class sspmod_idin_Interface {
         $trxReq->setLanguage('en');
         $trxReq->setIssuerID($params['issuerID']);
         $trxReq->setMerchantReference(\BankId\Merchant\Library\AuthenticationRequest::generateMerchantReference());
-        $trxReq->setAssuranceLevel(\BankId\Merchant\Library\AssuranceLevel::$Loa2);
+        $trxReq->setAssuranceLevel(\BankId\Merchant\Library\AssuranceLevel::$Loa3);
         $trxReq->setRequestedServiceID(1);
         
         $trxRes = self::$_bankid_communicator->newAuthenticationRequest($trxReq);
